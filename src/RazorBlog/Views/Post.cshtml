@@ -1,0 +1,175 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Post>
+@{
+	Layout = "_Layout.cshtml";
+    var author = Model.Author.SafeCast<Author>();
+
+    // generate a random set of post IDs (not including the current post)
+    // - these are used later on for faking "related blog posts" data
+    var random = new Random();
+    var recommendedKeys = Model.Parent
+        .Children<Post>()
+        .Where(c => c.Key != Model.Key)
+        .OrderBy(c => random.Next(100))
+        .Take(3)
+        .Select(c => c.Key);
+    var recommendedKeysArrayValue = $"'{string.Join("','", recommendedKeys)}'";
+    var cultureIsoCode = System.Threading.Thread.CurrentThread.CurrentUICulture.ToString();
+}
+@* Header *@
+<header class="w-full m-0 p-0 bg-cover bg-bottom" style="background-color: #3F46B1">
+	<div class="container max-w-4xl mx-auto p-8 text-center break-normal">
+		<a href="/" class="text-white font-extrabold text-3xl md:text-5xl">
+			The Razor Blog
+		</a>
+	</div>
+</header>
+
+@* Title *@
+<div class="text-center pt-16">
+    <p class="md:text-sm pt-2 text-gray-600 text-xs">@Model.UpdateDate.ToShortDateString()</p>
+    <h1 class="font-bold break-normal text-3xl md:text-5xl">@Model.Name</h1>
+    <p class="md:text-sm pt-2 text-gray-600 text-xs">@Model.FormatTags()</p>
+</div>
+
+@* Cover image *@
+<div class="container w-full max-w-6xl mx-auto bg-white bg-no-repeat bg-center mt-8 rounded" style="background-image:url('@Model.CoverImage.Url()'); height: 75vh;"></div>
+
+@* Container *@
+<div class="container max-w-5xl mx-auto -mt-32 mb-4">
+	
+    <div class="mx-0 sm:mx-6 rounded-t rounded-b-none overflow-hidden shadow-lg mb-8">
+
+        @* Author *@
+        <div class="flex w-full items-center font-sans p-8 bg-gray-200">
+            <img class="w-10 h-10 rounded-full mr-4" src="@author.Picture.Url()" alt="@author.Name">
+            <div class="flex-1">
+                <p class="text-base font-bold text-base md:text-xl leading-none">@author.Name</p>
+            </div>
+        </div>
+		
+        @* Post content *@
+        <div class="bg-white w-full p-8 md:p-24 text-lg font-serif text-gray-800 leading-normal">
+            <div>
+                @Model.Content
+            </div>
+        </div>
+
+    </div>
+
+    @* Recommended posts *@
+    <recommended-posts culture="@cultureIsoCode"></recommended-posts>
+    
+    @* Posts by this author *@
+    <div class="pt-12">
+        <div class="text-center pb-6">
+            <h2 class="font-bold break-normal text-3xl md:text-5xl">Posts by @Model.Author.Name</h2>
+        </div>
+        <div class="container flex flex-wrap">
+
+            @foreach (var post in Model.PostsByAuthor)
+            {
+                <div class="w-full md:w-1/2 p-6 pb-0 flex flex-col flex-shrink">
+                    <div class="flex-1 bg-white rounded-t rounded-b-none overflow-hidden shadow-lg">
+                        <a href="@post.Url()" class="flex flex-wrap no-underline hover:no-underline">
+                            <img src="@post.CoverImage.Url()" class="h-full w-full rounded-t pb-6" alt="@post.CoverImage.Name">
+                            <p class="w-full text-gray-600 text-xs md:text-sm px-6">@Model.UpdateDate.ToShortDateString()</p>
+                            <div class="w-full font-bold text-xl text-gray-900 px-6">@post.Name</div>
+                            <p class="w-full text-gray-600 text-xs md:text-sm px-6">@post.FormatTags()</p>
+                            <p class="text-gray-800 font-serif text-base px-6 mb-5 pt-6">@post.Excerpt</p>
+                        </a>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+
+</div>
+
+<script type="module">
+
+import {LitElement, css, html} from 'https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js';
+// TODO: styles should be baked in instead of imported ... this is shady :) 
+import styles from 'https://unpkg.com/tailwindcss@@^2/dist/tailwind.min.css' assert { type: 'css' };
+
+export class RecommendedPosts extends LitElement {
+    static properties = {
+        data: {attribute: false},
+        culture: {type: String}
+    };
+
+    fetchPosts() {
+        // let's imagine that these IDs were served by a recommendation service
+        let ids = [@Html.Raw(recommendedKeysArrayValue)];
+
+        // construct a GET request with the recommended IDs
+        let apiUrl = '/umbraco/api/posts/byid?';
+        ids.forEach(id => apiUrl += ('ids=' + id + '&'));
+
+        // execute request to render the response
+        fetch(apiUrl.slice(0, -1), {
+                method: 'GET',
+                headers: {
+                    'Start-Item': 'posts'
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Could not fetch data for URL: ${apiUrl} - response status was: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                this.data = data;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+    
+    constructor() {
+        super();
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this.fetchPosts();
+    }
+
+    // TODO: bake the styles into the element instead of loading them with a style sheet link (as is done below)
+    static styles = [styles];
+
+    render() {
+        return this.data
+            ? html`
+                <div class="bg-gray-200 mx-0 sm:mx-6">
+                    <div class="text-center pb-6">
+                        <h2 class="font-bold break-normal text-3xl md:text-5xl">You might also like</h2>
+                    </div>
+                    <div class="container w-full max-w-6xl mx-auto">
+                        <div class="flex flex-wrap -mx-2">
+                            ${this.data.posts.map(post => html`
+                                <div class="w-full md:w-1/3 px-2">
+                                    <div class="h-full bg-white rounded overflow-hidden shadow-md hover:shadow-lg relative smooth">
+                                        <a href="${post.route.path}" class="no-underline hover:no-underline">
+                                            <img src="${post.properties.coverImage[0].url}" class="w-full rounded-t pt-4" alt="${post.properties.coverImage[0].name}">
+                                            <div class="p-6 h-auto">
+                                                <p class="text-gray-600 text-xs md:text-sm">${new Date(post.updateDate).toLocaleDateString(this.culture)}</p>
+                                                <div class="font-bold text-xl text-gray-900">${post.name}</div>
+                                                <p class="text-gray-600 text-xs md:text-sm">${post.properties.tags.join(' | ')}</p>
+                                                <p class="text-gray-800 font-serif text-base mb-5 pt-6">${post.properties.excerpt}</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>                
+                            `)}
+                        </div>
+                    </div>
+                </div>
+                `
+            : html``;
+    }
+}
+
+customElements.define('recommended-posts', RecommendedPosts);
+</script>

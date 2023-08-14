@@ -1,0 +1,75 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Posts>
+@{
+	Layout = "_Layout.cshtml";
+	var posts = Model.Children.OfType<Post>().OrderByDescending(c => c.UpdateDate).Take(10).ToArray();
+	var firstPost = posts.First();
+	var otherPosts = posts.Skip(1).ToArray();
+}
+@* Header *@
+<header class="w-full m-0 p-0 bg-cover bg-bottom h-80" style="background-color: #3F46B1">
+	<div class="container max-w-4xl mx-auto pt-16 md:pt-32 text-center break-normal">
+		<p class="text-white font-extrabold text-3xl md:text-5xl">
+			The Razor Blog
+		</p>
+		<p class="text-xl md:text-2xl text-gray-300">- Umbraco ramblings galore!</p>
+	</div>
+</header>
+
+<div class="container px-4 md:px-0 max-w-6xl mx-auto -mt-16">
+    <div class="mx-0 sm:mx-6">
+        <div class="bg-gray-200 w-full text-xl md:text-2xl text-gray-800 leading-normal rounded-t">
+
+            @* First post *@
+            <div class="flex h-full bg-white rounded overflow-hidden shadow-lg" style="min-height: 50vh;">
+                <a href="@firstPost.Url()" class="flex flex-wrap no-underline hover:no-underline w-full">
+                    <div class="w-full md:w-2/3 rounded-t" style="display: flex; align-items: center;">
+                        <img src="@firstPost.CoverImage.Url()" class="w-full" alt="@firstPost.CoverImage.Name">
+                    </div>
+
+                    <div class="w-full md:w-1/3 flex flex-col flex-grow flex-shrink">
+                        <div class="flex-1 bg-white rounded-t rounded-b-none overflow-hidden shadow-lg">
+                            <p class="w-full text-gray-600 text-xs md:text-sm pt-6 px-6">@Model.UpdateDate.ToShortDateString()</p>
+                            <div class="w-full font-bold text-xl text-gray-900 px-6">@firstPost.Name</div>
+                            <p class="w-full text-gray-600 text-xs md:text-sm px-6">@firstPost.FormatTags()</p>
+                            <p class="text-gray-800 font-serif text-base px-6 mb-5 pt-6">@firstPost.Excerpt</p>
+                        </div>
+
+                        <div class="flex-none mt-auto bg-white rounded-b rounded-t-none overflow-hidden shadow-lg p-6">
+                            <div class="flex items-center">
+                                <img class="w-8 h-8 rounded-full mr-4 avatar" src="@(firstPost.Author.SafeCast<Author>().Picture.Url())" alt="@firstPost.Author.Name">
+                                <p class="text-gray-600 text-xs md:text-sm">@firstPost.Author.Name</p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            @* Other posts *@
+            <div class="flex flex-wrap justify-between pt-12 -mx-6">
+
+                @foreach (var post in otherPosts)
+                {
+                    <div class="w-full md:w-1/2 p-6 flex flex-col flex-shrink">
+                        <div class="flex-1 bg-white rounded-t rounded-b-none overflow-hidden shadow-lg">
+                            <a href="@post.Url()" class="flex flex-wrap no-underline hover:no-underline">
+                                <img src="@post.CoverImage.Url()" class="h-full w-full rounded-t pb-6" alt="@post.CoverImage.Name">
+                                <p class="w-full text-gray-600 text-xs md:text-sm px-6">@Model.UpdateDate.ToShortDateString()</p>
+                                <div class="w-full font-bold text-xl text-gray-900 px-6">@post.Name</div>
+                                <p class="w-full text-gray-600 text-xs md:text-sm px-6">@post.FormatTags()</p>
+                                <p class="text-gray-800 font-serif text-base px-6 mb-5 pt-6">@post.Excerpt</p>
+                            </a>
+                        </div>
+                        <div class="flex-none mt-auto bg-white rounded-b rounded-t-none overflow-hidden shadow-lg p-6">
+                            <div class="flex items-center">
+                                <img class="w-8 h-8 rounded-full mr-4 avatar" src="@(post.Author.SafeCast<Author>().Picture.Url())" alt="@post.Author.Name">
+                                <p class="text-gray-600 text-xs md:text-sm">@post.Author.Name</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+
+        </div>
+    </div>
+</div>

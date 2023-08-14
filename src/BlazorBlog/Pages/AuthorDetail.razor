@@ -1,0 +1,66 @@
+﻿@page "/author/{slug}"
+@using Models
+@using BlazorBlog.Components
+@using BlazorBlog.Services
+@inject IContentService ContentService
+
+@{
+    @* Header *@
+    <header class="w-full m-0 p-0 bg-cover bg-bottom" style="background-color: #3F46B1">
+        <div class="container max-w-4xl mx-auto p-8 text-center break-normal">
+            <NavLink href="/" class="text-white font-extrabold text-3xl md:text-5xl">
+                The Blazor Blog
+            </NavLink>
+        </div>
+    </header>
+
+    @* TODO: add some kind of skeleton loading while fetching the author *@
+    @if (_author is not null)
+    {
+        @* Title *@
+        <div class="text-center pt-16">
+            <p class="md:text-base text-gray-500 text-sm">All posts by</p>
+            <h1 class="font-bold break-normal text-3xl md:text-5xl">@_author.Name</h1>
+        </div>
+
+    	@* Container *@
+        <div class="container max-w-6xl mx-auto mt-8">
+
+            @* Posts *@
+            <div class="container w-full max-w-6xl mx-auto">
+                <div class="flex flex-wrap -mx-2">
+                    @foreach (var post in _author.LatestPosts)
+                    {
+                        <div class="w-full md:w-1/2 p-6 flex flex-col flex-shrink" key={post.id}>
+                            <div class="flex-1 bg-white rounded-t rounded-b-none overflow-hidden shadow-lg">
+                                <div class="flex flex-wrap no-underline hover:no-underline">
+                                    <NavLink href="@RenderHelpers.PostLink(post)">
+                                        <img src="@post.CoverImage.Url" class="h-full w-full rounded-t pb-6" alt="@post.CoverImage.Title"/>
+                                    </NavLink>
+                                    <p class="w-full text-gray-600 text-xs md:text-sm px-6">@post.Date.ToShortDateString()</p>
+                                    <div class="w-full font-bold text-xl text-gray-900 px-6">@post.Title</div>
+                                    <p class="w-full text-gray-600 text-xs md:text-sm px-6"><PostTags Post="@post"></PostTags></p>
+                                    <p class="text-gray-800 font-serif text-base px-6 mb-5 pt-6">@post.Excerpt</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+        <Footer></Footer>
+    }
+}
+
+@code {
+    [Parameter]
+    public string Slug { get; set; } = string.Empty;
+
+    private Author? _author;
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        _author = await ContentService.AuthorAsync(Slug);
+    }
+}

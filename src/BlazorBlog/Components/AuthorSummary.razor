@@ -1,0 +1,14 @@
+﻿@using BlazorBlog.Models
+@using BlazorBlog.Pages
+
+<NavLink href="@RenderHelpers.AuthorLink(Author)" class="flex-none mt-auto bg-white rounded-b rounded-t-none overflow-hidden shadow-lg p-6">
+    <div class="flex items-center">
+        <img class="w-8 h-8 rounded-full mr-4 avatar" src="@Author.Picture.Url" alt="@Author.Name">
+        <p class="text-gray-600 text-xs md:text-sm">@Author.Name</p>
+    </div>
+</NavLink>
+
+@code {
+    [Parameter]
+    public required Author Author { get; init; }    
+}

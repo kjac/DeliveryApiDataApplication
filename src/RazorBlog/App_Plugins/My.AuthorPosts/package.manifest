@@ -1,0 +1,14 @@
+﻿{
+    "name": "My Author Posts",
+    "version": "1.0.0",
+    "propertyEditors": [{
+            "alias": "My.AuthorPosts",
+            "name": "My Author Posts",
+            "editor": {
+                "view": "~/App_Plugins/My.AuthorPosts/my.authorposts.html",
+                "hideLabel": false,
+                "valueType": "STRING"
+            }
+        }
+    ]
+}

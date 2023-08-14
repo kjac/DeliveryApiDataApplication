@@ -1,0 +1,30 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>The Razor Blog</title>
+    <base href="/" />
+    <link href="https://unpkg.com/tailwindcss@@^2/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-200 font-sans leading-normal tracking-normal">
+<div id="app">
+    @RenderBody()
+
+    @* Footer *@
+    <footer class="flex items-center max-w-6xl mx-auto p-8">
+        <div class="flex-1">
+            <p class="text-base font-bold text-base md:text-xl leading-none">The Razor Blog</p>
+            <p class="text-gray-600 text-xs md:text-base">- built with Umbraco</p>
+        </div>
+        <div class="justify-end">
+            <a href="https://umbraco.com" target="_blank" class="bg-transparent border border-gray-500 hover:border-green-500 text-xs text-gray-500 hover:text-green-500 font-bold py-2 px-4 rounded-full">Visit umbraco.com</a>
+        </div>
+    </footer>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,21 @@
+﻿@using BlazorBlog.Models
+@using BlazorBlog.Pages
+@{
+    if (Post.Tags.Any() is false)
+    {
+        return;
+    }
+
+    var firstTag = Post.Tags.First();
+    var otherTags = Post.Tags.Skip(1).ToArray();
+}
+<NavLink href="@RenderHelpers.TagLink(firstTag)" class="hover:underline">@firstTag</NavLink>
+@foreach (var tag in otherTags)
+{
+    <span> | </span><NavLink href="@RenderHelpers.TagLink(tag)" class="hover:underline">@tag</NavLink>
+}
+
+@code {
+    [Parameter]
+    public required PostSummary Post { get; init; }
+}

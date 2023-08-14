@@ -1,0 +1,89 @@
+﻿@page "/"
+@using Models
+@using BlazorBlog.Components
+@using BlazorBlog.Services
+@inject IContentService ContentService
+
+@{
+    var firstPost = _latestPosts?.FirstOrDefault();
+    var otherPosts = _latestPosts?.Skip(1).ToArray();
+
+    @* Header *@
+    <header class="w-full m-0 p-0 bg-cover bg-bottom h-80" style="background-color: #3F46B1">
+        <div class="container max-w-4xl mx-auto pt-16 md:pt-32 text-center break-normal">
+            <p class="text-white font-extrabold text-3xl md:text-5xl">
+                The Blazor Blog
+            </p>
+            <p class="text-xl md:text-2xl text-gray-300">- Umbraco ramblings galore!</p>
+        </div>
+    </header>
+    
+    <div class="container px-4 md:px-0 max-w-6xl mx-auto -mt-16">
+
+        @* TODO: add some kind of skeleton loading while fetching blog posts *@
+        @if (firstPost is not null && otherPosts is not null)
+        {
+            <div class="mx-0 sm:mx-6">
+                <div class="bg-gray-200 w-full text-xl md:text-2xl text-gray-800 leading-normal rounded-t">
+
+                    @* First post *@
+                    <div class="flex h-full bg-white rounded overflow-hidden shadow-lg" style="min-height: 50vh;">
+                        <div href="@RenderHelpers.PostLink(firstPost)" class="flex flex-wrap no-underline hover:no-underline w-full">
+                            <NavLink href="@RenderHelpers.PostLink(firstPost)" class="w-full md:w-2/3 rounded-t" style="display: flex; align-items: center;">
+                                <img src="@firstPost.CoverImage.Url" class="w-full" alt="@firstPost.CoverImage.Title">
+                            </NavLink>
+
+                            <div class="w-full md:w-1/3 flex flex-col flex-grow flex-shrink">
+                                <div class="flex-1 bg-white rounded-t rounded-b-none overflow-hidden shadow-lg">
+                                    <p class="w-full text-gray-600 text-xs md:text-sm pt-6 px-6">@firstPost.Date.ToShortDateString()</p>
+                                    <div class="w-full font-bold text-xl text-gray-900 px-6">@firstPost.Title</div>
+                                    <p class="w-full text-gray-600 text-xs md:text-sm px-6"><PostTags Post="@firstPost"></PostTags></p>
+                                    <p class="text-gray-800 font-serif text-base px-6 mb-5 pt-6">@firstPost.Excerpt</p>
+                                </div>
+
+                                <AuthorSummary Author="@firstPost.Author"></AuthorSummary>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Other posts *@
+                    <div class="flex flex-wrap justify-between pt-12 -mx-6">
+
+                        @foreach (var post in otherPosts)
+                        {
+                            <div class="w-full md:w-1/2 p-6 flex flex-col flex-shrink">
+                                <div class="flex-1 bg-white rounded-t rounded-b-none overflow-hidden shadow-lg">
+                                    <div href="@RenderHelpers.PostLink(post)" class="flex flex-wrap no-underline hover:no-underline">
+                                        <NavLink href="@RenderHelpers.PostLink(post)">
+                                            <img src="@post.CoverImage.Url" class="h-full w-full rounded-t pb-6" alt="@post.CoverImage.Title">
+                                        </NavLink>
+                                        <p class="w-full text-gray-600 text-xs md:text-sm px-6">@post.Date.ToShortDateString()</p>
+                                        <div class="w-full font-bold text-xl text-gray-900 px-6">@post.Title</div>
+                                        <p class="w-full text-gray-600 text-xs md:text-sm px-6"><PostTags Post="@post"></PostTags></p>
+                                        <p class="text-gray-800 font-serif text-base px-6 mb-5 pt-6">@post.Excerpt</p>
+                                    </div>
+                                </div>
+
+                                <AuthorSummary Author="@post.Author"></AuthorSummary>
+                            </div>
+                        }
+
+                    </div> 
+                
+                </div>
+
+            </div>
+            <Footer></Footer>
+        }
+
+    </div>
+}
+
+@code {
+    private Post[]? _latestPosts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _latestPosts = await ContentService.LatestPostsAsync();
+    }
+}
