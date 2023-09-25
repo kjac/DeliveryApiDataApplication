@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms" Version="12.0.1" />
+    <PackageReference Include="Umbraco.Cms" Version="12.2.0" />
     <PackageReference Include="Umbraco.Sample.Headless.Blog" Version="1.0.0" />
   </ItemGroup>
 
