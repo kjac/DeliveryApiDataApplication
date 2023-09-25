@@ -103,8 +103,8 @@ export class RecommendedPosts extends LitElement {
         let ids = [@Html.Raw(recommendedKeysArrayValue)];
 
         // construct a GET request with the recommended IDs
-        let apiUrl = '/umbraco/api/posts/byid?';
-        ids.forEach(id => apiUrl += ('ids=' + id + '&'));
+        let apiUrl = '/umbraco/delivery/api/v1/content/item?';
+        ids.forEach(id => apiUrl += ('id=' + id + '&'));
 
         // execute request to render the response
         fetch(apiUrl.slice(0, -1), {
@@ -148,7 +148,7 @@ export class RecommendedPosts extends LitElement {
                     </div>
                     <div class="container w-full max-w-6xl mx-auto">
                         <div class="flex flex-wrap -mx-2">
-                            ${this.data.posts.map(post => html`
+                            ${this.data.map(post => html`
                                 <div class="w-full md:w-1/3 px-2">
                                     <div class="h-full bg-white rounded overflow-hidden shadow-md hover:shadow-lg relative smooth">
                                         <a href="${post.route.path}" class="no-underline hover:no-underline">

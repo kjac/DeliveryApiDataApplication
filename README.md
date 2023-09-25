@@ -45,5 +45,5 @@ This is also a Razor implementation of a blog, where Umbraco acts as head of the
 
 The sample shows how the Delivery API can be applied to solve various use cases: 
 
-- Building a custom content API, using the Delivery API content rendering service to retain the contract for the returned content items.
-- Using the Delivery API querying service to query for content items, reusing the custom filtering built for The React Blog.
+- Fetching content items asyncronously using a web component on the client.
+- Utilizing the Delivery API querying service to query for content items, reusing the custom filtering built for The React Blog.
